@@ -1,11 +1,12 @@
 using RtgsGlobal.TechTest.Api.Controllers;
+using RtgsGlobal.TechTest.Api.Responses;
 
 namespace RtgsGlobal.TechTest.Api;
 
 public interface IAccountProvider
 {
 	MyBalance GetBalance(string accountIdentifier);
-	void Deposit(string accountIdentifier, float amount);
+	Result Deposit(string accountIdentifier, float amount);
 	void Transfer(MyTransferDto transfer);
 	void Withdraw(string accountIdentifier, float amount);
 }
@@ -28,7 +29,17 @@ public class AccountProvider : IAccountProvider
 
 	//Use decimal instead of float for "amount"
 	//"accountIdentifier", similar to GetBalance(), validate first before adding. 
-	public void Deposit(string accountIdentifier, float amount) => AddTransaction(accountIdentifier, amount);
+	public Result Deposit(string accountIdentifier, float amount)
+	{
+		if (!_accounts.ContainsKey(accountIdentifier))
+		{
+			return new Result { IsSuccess = false, ErrorMessage = "Account does not exist" };
+		}
+
+		AddTransaction(accountIdentifier, amount);
+		
+		return new Result { IsSuccess = true };
+	}
 
 	public void Transfer(MyTransferDto transfer)
 	{

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using RtgsGlobal.TechTest.Api.Responses;
 
 namespace RtgsGlobal.TechTest.Api.Controllers;
 
@@ -35,7 +36,13 @@ public class AccountController : ControllerBase
 			return BadRequest();
 		}
 
-		_accountProvider.Deposit(accountIdentifier, amount);
+		var result = _accountProvider.Deposit(accountIdentifier, amount);
+        
+		if (!result.IsSuccess) 
+		{
+			return BadRequest(new AccountApiError { Message = result.ErrorMessage! });
+		}
+		
 		return Ok();
 	}
 
