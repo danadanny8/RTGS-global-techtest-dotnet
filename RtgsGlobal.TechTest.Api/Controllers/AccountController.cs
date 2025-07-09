@@ -70,6 +70,13 @@ public class AccountController : ControllerBase
 		 *
 		 * Use a mapper class (or Automapper) to map "transfer" to DTO (FundsTransferDto) before calling "Transfer()".
 		 ********************************************************************************************/
+		
+		if(string.Equals(transfer.DebtorAccountIdentifier, transfer.CreditorAccountIdentifier, 
+        	StringComparison.InvariantCultureIgnoreCase))
+        {
+        	return BadRequest();
+        }
+		
 		_accountProvider.Transfer(transfer);
 		return Accepted();
 	}
