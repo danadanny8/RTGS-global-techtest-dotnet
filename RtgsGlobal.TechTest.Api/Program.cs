@@ -8,6 +8,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//More appropriate to use Scoped lifetime as it is scoped within each HTTP request.
 builder.Services.AddSingleton<IAccountProvider, AccountProvider>();
 
 var app = builder.Build();

@@ -9,6 +9,8 @@ using Xunit;
 
 namespace RtgsGlobal.TechTest.Test;
 
+//Name of test class could be renamed to reflect that it is an inetgration test against AccountController.
+//Categorise this test as "Integration"
 public class BankAccountTests : IClassFixture<WebApplicationFactory<Program>>
 {
 	private readonly HttpClient _client;
@@ -18,6 +20,8 @@ public class BankAccountTests : IClassFixture<WebApplicationFactory<Program>>
 		_client = fixture
 			.WithWebHostBuilder(builder => builder.ConfigureServices(services =>
 			{
+				//Tests rely on AccountProvider singleton which will share state between tests. 
+				//More appropriate to use Scoped lifetime as it is scoped within each HTTP request.
 				services.AddSingleton<IAccountProvider, AccountProvider>();
 			}))
 			.CreateDefaultClient();
@@ -26,14 +30,20 @@ public class BankAccountTests : IClassFixture<WebApplicationFactory<Program>>
 	[Fact]
 	public async Task GivenAccountExistsWithNoTransactions_ThenGetBalanceShouldReturnZero()
 	{
+		//Might be worth having a Setup() and TearDown() so that each test state is isolated.
 		var result = await _client.GetFromJsonAsync<MyBalance>("/account/account-a");
 
+		//Assert if result is null.
 		Assert.Equal(0, result.Balance);
 	}
 
 	[Fact]
 	public async Task GivenAccountExists_WhenDepositIsAdded_ThenGetBalanceShouldReturnExpected()
 	{
+		//Passing raw string as JSON body may cause deserialisation issues.
+        //Better to pass in a DTO such as DepositRequest instead.
+        //It also clarifies the intent. 
+		//Have an uri like "/account/account-a/deposits" - deposits as a resource.
 		await _client.PostAsJsonAsync("/account/account-a", "1000");
 		var result = await _client.GetFromJsonAsync<MyBalance>("/account/account-a");
 
@@ -45,6 +55,8 @@ public class BankAccountTests : IClassFixture<WebApplicationFactory<Program>>
 	{
 		await _client.PostAsJsonAsync("/account/account-a", "1000");
 
+		//"/account/account-a/withdraw" - "withdraw" is an action. 
+		//"/account/account-a/withdrawals" might be more appropriate
 		await _client.PostAsJsonAsync("/account/account-a/withdraw", "100");
 		var result = await _client.GetFromJsonAsync<MyBalance>("/account/account-a");
 
