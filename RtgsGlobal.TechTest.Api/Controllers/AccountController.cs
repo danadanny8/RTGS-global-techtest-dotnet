@@ -29,6 +29,12 @@ public class AccountController : ControllerBase
 		 *
 		 * What about currency code?
 		 ****************************************************************************************************/
+
+		if (amount < 0)
+		{
+			return BadRequest();
+		}
+
 		_accountProvider.Deposit(accountIdentifier, amount);
 		return Ok();
 	}
